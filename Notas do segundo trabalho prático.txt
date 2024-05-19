@@ -1,0 +1,15 @@
+//Como não ter o problema de cors
+//Serve para ler um documento em yaml e transformá-lo em JS
+npm install yamljs 
+import yaml from 'yamlJs'
+
+//Recebe o objeto em javascript e em api-docs vai gerar a documentação igual à que temos no plug in 
+npm install swagger-ui-express
+import swaggerUi from 'swagger-ui-express'
+
+
+Quando existe um exceção não tratada retorna um status code 500
+
+q -> texto que apareça no titulo da tarefa
+skip -> qunatas queremos ignorar
+limit -> quantas quero obter

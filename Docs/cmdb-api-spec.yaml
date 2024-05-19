@@ -1,0 +1,287 @@
+openapi: 3.0.1
+info:
+  title: Movies Database 
+  version: '1.0'
+servers:
+  - url: http://localhost:1906
+paths:
+  /groups:
+    get:
+      description: Returns a list of movies with a given name
+      parameters:
+        - name: movie-name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 250
+      responses:
+        '200':
+          description: Successfully returned searched movie list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieArray'
+        '400':
+          description: group of movie not given or limit above 250
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /groups/:id:
+    get:
+      summary: Gets the respective group with the respective id 
+      description: Creates a new user and outputs a userToken, given it doesn't exist yet
+      responses:
+        '200':
+          description: Group return Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserToken'
+  /groups/:id1:
+    post:
+      summary: Creates a new movie group
+      description: >-
+        Creates a new group with a given name and description for a given
+        UserToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        description: Json file with name and description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroup'
+      responses:
+        '200':
+          description: Successfully created group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Name and/or Description must not be empty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: Token not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '409':
+          description: Conflict, group already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /groups/movieID:
+    post:
+      description: adds a movie to a group
+      parameters:
+        - name: group-name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditGroup'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully edited group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Name and Description must not be empty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: Token not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: Group doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /groupsPut/:id:
+    put:
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: group updated Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupArray'
+        '401':
+          description: Token not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /group/:id/:DElete:
+    delete:
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: group-name
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully deleted the group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: Token not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: Group name does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  
+  /groups/:id/movieID:
+    delete:
+      description: Deletes a given movie from a given group
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: group-name
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: movie-id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Successfully eliminated movie from group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: Token not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: Movie or group doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    MovieArray:
+      type: object
+      properties:
+        movie-list:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              id:
+                type: string
+    Message:
+      type: string
+    UserToken:
+      type: object
+      properties:
+        userToken:
+          type: string
+    CreateGroup:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+        - description
+    EditGroup:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    GroupArray:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupDetails'
+    GroupDetails:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        movies:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              id:
+                type: string
+              duration:
+                type: integer
+        total-duration:
+          type: integer
+    Movie:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        duration:
+          type: integer
